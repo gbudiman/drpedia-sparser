@@ -7,6 +7,15 @@ exports.parse = function(x) {
   var depth = 0;
   var pointer = parse_trees;
   var splits = x.split(/\s+/);
+  var has_closing_quote = function(y, matcher_quote) {
+    var quotes = y.match(/([\'\"])$/);
+    if (quotes) {
+      var closing_quote = quotes[0];
+      if (closing_quote == matcher_quote) { return true; }
+    }
+
+    return false;
+  };
 
   console.log('Input: ' + x);
   for (var i = 0; i < splits.length; i++) {
@@ -17,6 +26,26 @@ exports.parse = function(x) {
     if (current == '(' || next == ')') {
       actual += next;
       i++;
+    }
+
+    var quotes = current[0] == undefined ? undefined : current[0].match(/^([\'\"])/);
+
+    if (quotes) {
+      var quote_type = quotes[1];
+      i += 1;
+
+      while(true) {
+        if (i >= splits.length) {
+          break;
+        }
+
+        actual += ' ' + splits[i];
+        if (has_closing_quote(splits[i], quote_type)) {
+          break;
+        }
+
+        i += 1;
+      }
     }
 
     depth = insert_to_tree(actual, pointer, depth);
