@@ -17,17 +17,8 @@ exports.parse = function(x) {
     return false;
   };
 
-  console.log('Input: ' + x);
-  for (var i = 0; i < splits.length; i++) {
+  var handle_parenthesis = function() {
     var current = splits[i];
-    var next = splits[i + 1];
-    var actual = current;
-
-    if (current == '(' || next == ')') {
-      actual += next;
-      i++;
-    }
-
     var quotes = current[0] == undefined ? undefined : current[0].match(/^([\'\"])/);
 
     if (quotes) {
@@ -47,7 +38,24 @@ exports.parse = function(x) {
         i += 1;
       }
     }
+  }
 
+  var handle_ellipsis = function() {
+    if (current == '(' || next == ')') {
+      actual += next;
+      i++;
+    }
+  }
+
+  console.log('Input: ' + x);
+  for (var i = 0; i < splits.length; i++) {
+    var current = splits[i];
+    var next = splits[i + 1];
+    var actual = current;
+
+
+    handle_ellipsis();
+    handle_parenthesis();
     depth = insert_to_tree(actual, pointer, depth);
   }
 
