@@ -2,13 +2,15 @@
 
 var exports = module.exports = {};
 var parse_trees = new Object();
+var pointer = parse_trees;
 
 exports.parse = function(x) {
+  parse_trees = new Object();
+  pointer = parse_trees;
   var depth = 0;
-  var pointer = parse_trees;
   var splits = x.split(/\s+/);
   var has_closing_quote = function(y, matcher_quote) {
-    var quotes = y.match(/([\'\"])$/);
+    var quotes = y.match(/([\'\"])/);
     if (quotes) {
       var closing_quote = quotes[0];
       if (closing_quote == matcher_quote) { return true; }
@@ -48,15 +50,24 @@ exports.parse = function(x) {
   }
 
   console.log('Input: ' + x);
-  for (var i = 0; i < splits.length; i++) {
-    var current = splits[i];
-    var next = splits[i + 1];
-    var actual = current;
+  try {
+    for (var i = 0; i < splits.length; i++) {
+      var current = splits[i];
+      var next = splits[i + 1];
+      var actual = current;
 
 
-    handle_ellipsis();
-    handle_parenthesis();
-    depth = insert_to_tree(actual, pointer, depth);
+      handle_ellipsis();
+      handle_parenthesis();
+      //console.log('inserting: ' + actual);
+      depth = insert_to_tree(actual, pointer, depth);
+    }
+  } catch(err) {
+    switch(err.name) {
+      case 'TypeError': console.log('Naked expression'); break;
+    }
+    console.log(err);
+    throw(err);
   }
 
   console.log(' -- FIN --');
@@ -69,33 +80,39 @@ var insert_to_tree = function(x, pointer, depth) {
   //console.log('inserting ' + x);
 
   if (is_opening) {
+    var subsplit = x.split(/\(/);
+    var non_opening = subsplit[subsplit.length - 1];
+    var opening_count = (x.match(/\(/g) || []).length;
+
+    for (var i = 0; i < opening_count; i++) {
+      debug(depth, 'open', i < opening_count - 1 ? '(' : non_opening);
+      depth = depth + 1;
+    }
     //console.log(' > New list: ' + x);
-    debug(depth, 'open', x);
-    //create_node(x.slice(1), pointer);
-    return depth + 1;
+
+    //create_node(x.split(/\(/)[1]);
+    return depth;
   } else if (is_closing) {
     var non_closing = x.split(/\)/)[0];
     var closing_count = (x.match(/\)/g) || []).length;
 
     if (non_closing.length > 0) {
       debug(depth, 'append', non_closing);
-      //console.log(' > Append to list: ' + non_closing);
+      //append_node(non_closing);
     }
 
     for (var i = 0; i < closing_count; i++) {
-      debug(depth, 'close', '');
       depth = depth - 1;
-      //console.log(' > Close list');
+      debug(depth, 'close', '');
+      //close_node();
     }
-    //close_node();
 
     return depth;
   } else {
     if (x.length > 0) {
       debug(depth, 'append', x);
     }
-    //console.log(' > Append to list: ' + x);
-    //append_node(x, pointer);
+    //append_node(x);
     return depth;
   }
 };
@@ -116,4 +133,23 @@ var debug = function(depth, type, x) {
   s += x;
 
   console.log(s);
+}
+
+var create_node = function(x) {
+  var enclosure = new Object();
+  var list = new Array();
+  list.push(x);
+
+  enclosure.list = list;
+  pointer.pred = pointer;
+  pointer.data = enclosure;
+  //pointer = pointer.data;
+}
+
+var append_node = function(x) {
+  pointer.data.list.push(x);
+}
+
+var close_node = function() {
+  pointer = pointer.pred;
 }
