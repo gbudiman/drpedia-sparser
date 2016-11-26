@@ -2,68 +2,81 @@
 
 var exports = module.exports = {};
 var parse_trees = new Object();
-var current_id;
 
 exports.parse = function(x) {
-  parse_trees = new Object();
-  current_id = 0;
-  console.log('Parse array: ');
-  console.log(x.split(/\s+/));
-  x.split(/\s+/).forEach(insert_to_tree);
-  console.log(parse_trees);
-};
+  var depth = 0;
+  var pointer = parse_trees;
+  var splits = x.split(/\s+/);
 
-var insert_to_tree = function(x) {
-  //console.log('processing ' + x);
+  console.log('Input: ' + x);
+  for (var i = 0; i < splits.length; i++) {
+    var current = splits[i];
+    var next = splits[i + 1];
+    var actual = current;
 
-  var opening_ellipses = x.split(/^\(/);
-  var closing_ellipses = x.split(/\)$/);
+    if (current == '(' || next == ')') {
+      actual += next;
+      i++;
+    }
 
-  switch (opening_ellipses.length) {
-    case 1: // No opening ellipses found
-      check_naked_expression();
-
-      switch (closing_ellipses.length) {
-        case 1: // No closing ellipses either, literal is in middle
-          append_node(closing_ellipses[0], current_id);
-          break;
-        default: // There is closing ellipses
-          if (closing_ellipses[0].length > 0) {
-            append_node(closing_ellipses[0], current_id);
-          }
-
-          close_node(current_id);
-      }
-
-      break;
-    default: // Opening ellipses found, process the literal following that
-      create_node(opening_ellipses[1], current_id++);
+    depth = insert_to_tree(actual, pointer, depth);
   }
+
+  console.log(' -- FIN --');
 };
 
-var close_node = function(id) {
-  current_id = parse_trees[id].parent_id;
-};
+var insert_to_tree = function(x, pointer, depth) {
+  var is_opening = x[0] == '(';
+  var is_closing = x[x.length - 1] == ')';
 
-var create_node = function(x, id) {
-  var node = new Object();
-  node.head = x.length == 0 ? null : x;
-  node.parent_id = id;
-  node.args = new Array();
+  //console.log('inserting ' + x);
 
-  parse_trees[id + 1] = node;
-};
+  if (is_opening) {
+    //console.log(' > New list: ' + x);
+    debug(depth, 'open', x);
+    //create_node(x.slice(1), pointer);
+    return depth + 1;
+  } else if (is_closing) {
+    var non_closing = x.split(/\)/)[0];
+    var closing_count = (x.match(/\)/g) || []).length;
 
-var append_node = function(x, id) {
-  if (parse_trees[id].head == null) {
-    parse_trees[id].head = x;
+    if (non_closing.length > 0) {
+      debug(depth, 'append', non_closing);
+      //console.log(' > Append to list: ' + non_closing);
+    }
+
+    for (var i = 0; i < closing_count; i++) {
+      debug(depth, 'close', '');
+      depth = depth - 1;
+      //console.log(' > Close list');
+    }
+    //close_node();
+
+    return depth;
   } else {
-    parse_trees[id].args.push(x);
+    if (x.length > 0) {
+      debug(depth, 'append', x);
+    }
+    //console.log(' > Append to list: ' + x);
+    //append_node(x, pointer);
+    return depth;
   }
 };
 
-var check_naked_expression = function() {
-  if (current_id == 0) {
-    throw new Error('Naked expression. All S-Expression must start with \'(\'');
+var debug = function(depth, type, x) {
+  var s = ' ';
+
+  for (var i = 0; i < depth; i++) {
+    s += '  ';
   }
-};
+
+  s += '> ';
+  switch(type) {
+    case 'open':      s += 'New list: '; break;
+    case 'append':    s += 'Append  : '; break;
+    case 'close':     s += 'Close'     ; break;
+  }
+  s += x;
+
+  console.log(s);
+}
