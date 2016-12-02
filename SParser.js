@@ -1,9 +1,9 @@
 SParser.prototype.mock = function(x) {
-  conditions = x;
+  this.conditions = x;
 
   if (this.verbose & 0x1 == 1) {
     console.log('Factory Girl:');
-    console.log(conditions);
+    console.log(this.conditions);
   }
 }
 
@@ -132,14 +132,26 @@ SParser.prototype.parse = function(x) {
 SParser.prototype.cond = function(x, val) {
   switch (x) {
     case 'profession':
-      if (conditions.professions == undefined || conditions.professions.indexOf(val) == -1) {
+      if (this.conditions.professions == undefined || 
+          this.conditions.professions.indexOf(val) == -1) {
+        return false;
+      }
+
+      return true;
+      break;
+    case 'skill':
+      if (this.conditions.skills == undefined || 
+          this.conditions.skills.indexOf(val) == -1) {
         return false;
       }
 
       return true;
       break;
     default:
-      if (conditions.x == undefined || conditions.x != val) {
+      //console.log(this.conditions);
+      //console.log('checking condition ' + x + ' | ' + val + ' << ' + this.conditions.x);
+      if (this.conditions[x] == undefined || 
+          this.conditions[x] != val) {
         return false;
       }
 
@@ -255,7 +267,7 @@ SParser.prototype.context_comprehension = function(l) {
   switch(head) {
     case 's':           return this.func_strain(rest);
     case 'p':           return this.func_profs(rest);
-    //case 'k':           return func_skill(l);
+    case 'k':           return this.func_skills(rest);
     case 'xp_sum':      return this.func_xp_sum(rest);
     case 'stat_sum':    return this.func_stat_sum(rest);
     case 'and':         return this.func_and(rest);
@@ -295,8 +307,14 @@ function SParser(x) {
   }
 
   var func_strain = function(l) {
-    check_arglength_exactly(l, 1);
-    return this.cond('strain', l[0]);
+    // this.check_arglength_exactly(l, 1);
+    // return this.cond('strain', l[0]);
+    var that = this;
+    var local_satisfaction = l.some(function(x) {
+      return that.cond('strain', x);
+    })
+
+    return local_satisfaction;
   }
 
   var func_profs = function(l) {
@@ -308,23 +326,34 @@ function SParser(x) {
     return local_satisfaction;
   }
 
+  var func_skills = function(l) {
+    var that = this;
+    var local_satisfaction = l.some(function(x) {
+      return that.cond('skill', x);
+    })
+
+    return local_satisfaction;
+  }
+
   var func_xp_sum = function(l) {
     this.check_arglength_exactly(l, 1);
-    return conditions.xp_sum >= l[0];
+    return this.conditions.xp_sum >= l[0];
   }
 
   var func_stat_sum = function(l) {
     this.check_arglength_exactly(l, 2);
 
     switch(l[0]) {
-      case 'hp':       return conditions.hp >= l[1];
-      case 'mp':       return conditions.mp >= l[1];
-      case 'hp_or_mp': return conditions.hp >= l[1] || conditions.mp >= l[1];
+      case 'hp':       return this.conditions.hp >= l[1];
+      case 'mp':       return this.conditions.mp >= l[1];
+      case 'hp_or_mp': return this.conditions.hp >= l[1] || 
+                              this.conditions.mp >= l[1];
     }
   }
 
   this.func_strain = func_strain;
   this.func_profs = func_profs;
+  this.func_skills = func_skills;
   this.func_xp_sum = func_xp_sum;
   this.func_stat_sum = func_stat_sum;
   this.func_and = func_and;

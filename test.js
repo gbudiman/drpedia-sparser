@@ -66,6 +66,14 @@ var genjian_cook_fisher_150_shepherd = new fg.FactoryGirl({
   professions: prof_cook_fisher,
   strain: 'Genjian'
 })
+var plain_200_overlord = new fg.FactoryGirl({
+  xp_sum: 200,
+  hp: 60
+})
+var plain_200_gearhead = new fg.FactoryGirl({
+  xp_sum: 200,
+  hp: 100
+})
 
 
 var apo_templar = new s_parser(`
@@ -205,5 +213,22 @@ villon
                    .modify('professions', prof_spy))
   .expect(false, lascarian_guard_75_villon
                    .modify('xp_sum', 101));
+
+overlord
+  .expect(false, plain_200_overlord)
+  .expect(true,  plain_200_overlord
+                   .add_profession('Mad Scientist')
+                   .add_profession('Politician'))
+  .expect(false, plain_200_overlord
+                   .add_profession('Charlatan'))
+
+gear_head
+  .expect(false, plain_200_gearhead)
+  .expect(true,  plain_200_gearhead
+                   .modify('skills', ['Brewing'])
+                   .add_profession('Merchant'))
+  .expect(true,  plain_200_gearhead
+                   .modify('skills', ['Brewing'])
+                   .modify('strain', 'Rover'))
 
 process.exit(0);
