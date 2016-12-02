@@ -1,12 +1,20 @@
-'use strict';
-
 var exports = module.exports = {};
-var parse_trees = new Object();
-var pointer = parse_trees;
+var parse_trees;
+var start_pointers;
+var conditions;
+var verbose = true;
+
+exports.mock = function(x) {
+  conditions = x;
+  verbose = false;
+
+  console.log(conditions);
+}
 
 exports.parse = function(x) {
-  parse_trees = new Object();
-  pointer = parse_trees;
+  parse_trees = new Array();
+  start_pointers = new Array();
+
   var depth = 0;
   var splits = x.split(/\s+/);
   var has_closing_quote = function(y, matcher_quote) {
@@ -21,7 +29,27 @@ exports.parse = function(x) {
 
   var handle_parenthesis = function() {
     var current = splits[i];
-    var quotes = current[0] == undefined ? undefined : current[0].match(/^([\'\"])/);
+    var end_quote;
+    //var quotes = current[0] == undefined ? undefined : current[0].match(/^([\'\"])/);
+    //quotes = quotes == undefined ? undefined : current[0].match(/^([\'\"])/);
+
+    if (quotes == undefined) {
+      if (current[0] != undefined) {
+        quotes = current.match(/^([\'\"])/);
+
+      }
+    }
+
+    if (current != undefined) {
+      end_quote = current.match(/([\'\"'])$/);
+      if (end_quote != undefined && quotes != undefined) { 
+        if (quotes[1] == end_quote[1]) {
+          return;
+        }
+      }
+    }
+
+
 
     if (quotes) {
       var quote_type = quotes[1];
@@ -33,7 +61,9 @@ exports.parse = function(x) {
         }
 
         actual += ' ' + splits[i];
+        //console.log('appending ' + splits[i]);
         if (has_closing_quote(splits[i], quote_type)) {
+          //quotes = undefined;
           break;
         }
 
@@ -43,10 +73,17 @@ exports.parse = function(x) {
   }
 
   var handle_ellipsis = function() {
+    if (current.match(/([\'\"])/)) {
+      quotes = current.match(/([\'\"])/);
+      //console.log(quotes);
+    }
+
     if (current == '(' || next == ')') {
       actual += next;
       i++;
     }
+
+
   }
 
   console.log('Input: ' + x);
@@ -55,12 +92,20 @@ exports.parse = function(x) {
       var current = splits[i];
       var next = splits[i + 1];
       var actual = current;
-
+      var quotes = undefined;
 
       handle_ellipsis();
       handle_parenthesis();
-      //console.log('inserting: ' + actual);
-      depth = insert_to_tree(actual, pointer, depth);
+
+      
+      //console.log(quotes);
+
+      if (quotes != undefined) {
+        var re = new RegExp(quotes[1], 'g');
+        actual = actual.replace(re, '');
+      }
+      //console.log('inserting ' + actual);
+      depth = insert_to_tree(actual, depth);
     }
   } catch(err) {
     switch(err.name) {
@@ -70,10 +115,33 @@ exports.parse = function(x) {
     throw(err);
   }
 
+  if (start_pointers.length > 0) {
+    throw new Error('Non-empty pointers, dangling expression: ' + start_pointers);
+  }
   console.log(' -- FIN --');
 };
 
-var insert_to_tree = function(x, pointer, depth) {
+var cond = function(x, val) {
+  switch (x) {
+    case 'profession':
+      //console.log('Seeking ' + val);
+      //console.log(conditions.professions);
+      if (conditions.professions == undefined || conditions.professions.indexOf(val) == -1) {
+        return false;
+      }
+
+      return true;
+      break;
+    default:
+      if (conditions.x == undefined || conditions.x != val) {
+        return false;
+      }
+
+      return true;
+  }
+}
+
+var insert_to_tree = function(x, depth) {
   var is_opening = x[0] == '(';
   var is_closing = x[x.length - 1] == ')';
 
@@ -85,12 +153,11 @@ var insert_to_tree = function(x, pointer, depth) {
     var opening_count = (x.match(/\(/g) || []).length;
 
     for (var i = 0; i < opening_count; i++) {
-      debug(depth, 'open', i < opening_count - 1 ? '(' : non_opening);
+      var text = i < opening_count - 1 ? '(' : non_opening;
+      debug(depth, 'open', text);
+      create_node(text);
       depth = depth + 1;
     }
-    //console.log(' > New list: ' + x);
-
-    //create_node(x.split(/\(/)[1]);
     return depth;
   } else if (is_closing) {
     var non_closing = x.split(/\)/)[0];
@@ -98,12 +165,14 @@ var insert_to_tree = function(x, pointer, depth) {
 
     if (non_closing.length > 0) {
       debug(depth, 'append', non_closing);
+      append_node(non_closing);
       //append_node(non_closing);
     }
 
     for (var i = 0; i < closing_count; i++) {
       depth = depth - 1;
       debug(depth, 'close', '');
+      close_node();
       //close_node();
     }
 
@@ -111,6 +180,7 @@ var insert_to_tree = function(x, pointer, depth) {
   } else {
     if (x.length > 0) {
       debug(depth, 'append', x);
+      append_node(x);
     }
     //append_node(x);
     return depth;
@@ -118,6 +188,7 @@ var insert_to_tree = function(x, pointer, depth) {
 };
 
 var debug = function(depth, type, x) {
+  if (!verbose) { return; }
   var s = ' ';
 
   for (var i = 0; i < depth; i++) {
@@ -136,20 +207,100 @@ var debug = function(depth, type, x) {
 }
 
 var create_node = function(x) {
-  var enclosure = new Object();
-  var list = new Array();
-  list.push(x);
-
-  enclosure.list = list;
-  pointer.pred = pointer;
-  pointer.data = enclosure;
-  //pointer = pointer.data;
+  start_pointers.push(parse_trees.length);
+  parse_trees.push(x);
 }
 
 var append_node = function(x) {
-  pointer.data.list.push(x);
+  parse_trees.push(x);
 }
 
 var close_node = function() {
-  pointer = pointer.pred;
+  var previous_pointer = start_pointers.pop();
+  var syntax = new Array();
+
+  for (var i = previous_pointer; i < parse_trees.length; i++) {
+    if (Array.isArray(parse_trees[i])) {
+      parse_trees[i].forEach(function(x) { 
+        syntax.push(x); 
+      });
+
+    } else {
+      syntax.push(parse_trees[i]);
+    }
+  }
+
+  var comprehension_result = context_comprehension(syntax);
+  parse_trees.splice(previous_pointer, syntax.length + 1, comprehension_result);
+
+  console.log('Syntax: ' + syntax + ' => ' + comprehension_result);
+  // console.log('PT: ' + parse_trees);
+}
+
+var context_comprehension = function(l) {
+  var head = l[0];
+  var rest = l.slice(1);
+
+  switch(head) {
+    case 's':           return func_strain(rest);
+    case 'p':           return func_profs(rest);
+    //case 'k':           return func_skill(l);
+    case 'xp_sum':      return func_xp_sum(rest);
+    case 'stat_sum':    return func_stat_sum(rest);
+    case 'and':         return func_and(rest);
+    case 'or':          return func_or(rest);
+    case 'not':         return func_not(rest);
+    case '(':           return rest;
+    default:            return l;
+  }
+}
+
+var func_not = function(l) {
+  return !l[0];
+}
+
+var func_and = function(l) {
+  return l.every(function(x) {
+    return x;
+  })
+}
+
+var func_or = function(l) {
+  return l.some(function(x) {
+    return x;
+  })
+}
+
+var func_strain = function(l) {
+  check_arglength_exactly(l, 1);
+  return cond('strain', l[0]);
+}
+
+var func_profs = function(l) {
+  var local_satisfaction = l.some(function(x) {
+    return cond('profession', x);
+  })
+
+  return local_satisfaction;
+}
+
+var func_xp_sum = function(l) {
+  check_arglength_exactly(l, 1);
+  return conditions.xp_sum >= l[0];
+}
+
+var func_stat_sum = function(l) {
+  check_arglength_exactly(l, 2);
+
+  switch(l[0]) {
+    case 'hp':       return conditions.hp >= l[1];
+    case 'mp':       return conditions.mp >= l[1];
+    case 'hp_or_mp': return conditions.hp >= l[1] || conditions.mp >= l[1];
+  }
+}
+
+var check_arglength_exactly = function(l, size) {
+  if (l.length != size) {
+    throw new Error(size + ' arguments required, received ' + l.length);
+  }
 }
