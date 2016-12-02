@@ -1,35 +1,34 @@
-var exports = module.exports = {};
-var parse_trees;
-var start_pointers;
-var conditions;
-var verbose = 0; 
-  // 0x1 - I/O
-  // 0x2 - Parse trees
-  // 0x4 - Context comprehension
-var preset;
-var latch_result;
+// var parse_trees;
+// var start_pointers;
+// var conditions;
+// var verbose = 0; 
 
-exports.mock = function(x) {
+// var preset;
+// var latch_result;
+
+
+
+SParser.prototype.mock = function(x) {
   conditions = x;
 
-  if (verbose & 0x1 == 1) {
+  if (this.verbose & 0x1 == 1) {
     console.log('Factory Girl:');
     console.log(conditions);
   }
 }
 
-exports.set_verbose = function(x) {
-  verbose = x;
+SParser.prototype.set_verbose = function(x) {
+  this.verbose = x;
   return this;
 }
 
-exports.expect = function(expectation, x) {
-  if (preset == undefined) {
+SParser.prototype.expect = function(expectation, x) {
+  if (this.preset == undefined) {
     throw new Error('Call set() first before running expect()');
   }
 
   this.mock(x.raw);
-  this.parse(preset);
+  this.parse(this.preset);
   if (latch_result != expectation) {
     throw new Error('INCORRECT TEST: expected ' + expectation);
   } else {
@@ -39,12 +38,7 @@ exports.expect = function(expectation, x) {
   return this;
 }
 
-exports.set = function(x) {
-  preset = x;
-  return this;
-}
-
-exports.parse = function(x) {
+SParser.prototype.parse = function(x) {
   parse_trees = new Array();
   start_pointers = new Array();
 
@@ -119,7 +113,7 @@ exports.parse = function(x) {
 
   }
 
-  if (verbose & 0x1 == 1) {
+  if ((this.verbose & 0x1) == 1) {
     console.log('Input: ' + x);
   }
 
@@ -222,7 +216,7 @@ var insert_to_tree = function(x, depth) {
 };
 
 var debug = function(depth, type, x) {
-  if ((verbose & 0x2) != 0x2) { return; }
+  if ((this.verbose & 0x2) != 0x2) { return; }
   var s = ' ';
 
   for (var i = 0; i < depth; i++) {
@@ -267,7 +261,7 @@ var close_node = function() {
   var comprehension_result = context_comprehension(syntax);
   parse_trees.splice(previous_pointer, syntax.length + 1, comprehension_result);
 
-  if ((verbose & 0x4) == 0x4) {
+  if ((this.verbose & 0x4) == 0x4) {
     console.log('Syntax: ' + syntax + ' => ' + comprehension_result);
   }
   latch_result = comprehension_result;
@@ -340,4 +334,19 @@ var check_arglength_exactly = function(l, size) {
   if (l.length != size) {
     throw new Error(size + ' arguments required, received ' + l.length);
   }
+}
+
+module.exports = SParser;
+
+function SParser(x) {
+  this.parse_trees;
+  this.start_pointers;
+  this.conditions;
+  this.verbose = 0;
+    // 0x1 - I/O
+    // 0x2 - Parse trees
+    // 0x4 - Context comprehension
+  this.latch_result;
+  this.preset = x;
+  return this;
 }
