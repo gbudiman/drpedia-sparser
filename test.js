@@ -52,14 +52,14 @@ var prof_guard = fg.professions('Guard');
 var prof_spy = fg.professions('Spy');
 var prof_cook_fisher = fg.professions('Cook', 'Fishmonger');
 
-var lascarian_guard_75_villon = fg.new({
+var lascarian_guard_75_villon = new fg.FactoryGirl({
   xp_sum: 75,
   hp: 35,
   mp: 120,
   professions: prof_guard,
   strain: 'Lascarian'
 })
-var genjian_cook_fisher_150_shepherd = fg.new({
+var genjian_cook_fisher_150_shepherd = new fg.FactoryGirl({
   xp_sum: 150,
   hp: 10,
   mp: 10,
