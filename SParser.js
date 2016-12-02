@@ -129,7 +129,7 @@ SParser.prototype.parse = function(x) {
   }
 };
 
-SParser.prototype.cond = function(x, val) {
+SParser.prototype.cond = function(x, val, custom_function) {
   switch (x) {
     case 'profession':
       if (this.conditions.professions == undefined || 
@@ -148,14 +148,17 @@ SParser.prototype.cond = function(x, val) {
       return true;
       break;
     default:
-      //console.log(this.conditions);
-      //console.log('checking condition ' + x + ' | ' + val + ' << ' + this.conditions.x);
-      if (this.conditions[x] == undefined || 
-          this.conditions[x] != val) {
-        return false;
-      }
+      if (custom_function == undefined) {
+        if (this.conditions[x] == undefined || 
+            this.conditions[x] != val) {
+          return false;
+        }
 
-      return true;
+        return true;
+      } else {
+        if (this.conditions[x] == undefined) { return false; }
+        return custom_function(this.conditions[x], val);
+      }
   }
 }
 
@@ -265,16 +268,17 @@ SParser.prototype.context_comprehension = function(l) {
   var rest = l.slice(1);
 
   switch(head) {
-    case 's':           return this.func_strain(rest);
-    case 'p':           return this.func_profs(rest);
-    case 'k':           return this.func_skills(rest);
-    case 'xp_sum':      return this.func_xp_sum(rest);
-    case 'stat_sum':    return this.func_stat_sum(rest);
-    case 'and':         return this.func_and(rest);
-    case 'or':          return this.func_or(rest);
-    case 'not':         return this.func_not(rest);
-    case '(':           return rest;
-    default:            return l;
+    case 's':            return this.func_strain(rest);
+    case 'p':            return this.func_profs(rest);
+    case 'k':            return this.func_skills(rest);
+    case 'psionic_type': return this.func_psionic_type(rest);
+    case 'xp_sum':       return this.func_xp_sum(rest);
+    case 'stat_sum':     return this.func_stat_sum(rest);
+    case 'and':          return this.func_and(rest);
+    case 'or':           return this.func_or(rest);
+    case 'not':          return this.func_not(rest);
+    case '(':            return rest;
+    default:             return l;
   }
 }
 
@@ -307,8 +311,6 @@ function SParser(x) {
   }
 
   var func_strain = function(l) {
-    // this.check_arglength_exactly(l, 1);
-    // return this.cond('strain', l[0]);
     var that = this;
     var local_satisfaction = l.some(function(x) {
       return that.cond('strain', x);
@@ -329,10 +331,26 @@ function SParser(x) {
   var func_skills = function(l) {
     var that = this;
     var local_satisfaction = l.some(function(x) {
-      return that.cond('skill', x);
+      return that.cond('skill', x) || x;
     })
 
     return local_satisfaction;
+  }
+
+  var func_psionic_type = function(l) {
+    this.check_arglength_exactly(l, 2);
+    var s_class;
+    var s_func = function(x, y) { return x >= y; }
+
+    switch(l[0]) {
+      case 'basic':         s_class = 'psionic_basic'; break;
+      case 'intermediate':  s_class = 'psionic_intermediate'; break;
+      case 'advanced':      s_class = 'psionic_advanced'; break;
+      default:
+        throw new Error('Unknown Psionic skill class: ' + l[0]);
+    }
+
+    return this.cond(s_class, -1, s_func);
   }
 
   var func_xp_sum = function(l) {
@@ -354,6 +372,7 @@ function SParser(x) {
   this.func_strain = func_strain;
   this.func_profs = func_profs;
   this.func_skills = func_skills;
+  this.func_psionic_type = func_psionic_type;
   this.func_xp_sum = func_xp_sum;
   this.func_stat_sum = func_stat_sum;
   this.func_and = func_and;

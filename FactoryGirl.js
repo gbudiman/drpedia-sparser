@@ -36,7 +36,6 @@ FactoryGirl.prototype.add_profession = function(_val) {
     throw new Error('Can only have a maximum of 3 professions');
   }
 
-  // this.raw.professions.push(_val);
   return this.modify('add_profession', _val);
 }
 

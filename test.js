@@ -74,6 +74,11 @@ var plain_200_gearhead = new fg.FactoryGirl({
   xp_sum: 200,
   hp: 100
 })
+var psionist_200_thoughtbender = new fg.FactoryGirl({
+  xp_sum: 200,
+  mp: 50,
+  professions: ['Psionist']
+})
 
 
 var apo_templar = new s_parser(`
@@ -230,5 +235,12 @@ gear_head
   .expect(true,  plain_200_gearhead
                    .modify('skills', ['Brewing'])
                    .modify('strain', 'Rover'))
+  .expect(false, plain_200_gearhead
+                   .modify('skills', ['Forging the Future']))
+
+thought_bender
+  .expect(false, psionist_200_thoughtbender)
+  .expect(true,  psionist_200_thoughtbender
+                   .modify('psionic_advanced', 4))
 
 process.exit(0);
