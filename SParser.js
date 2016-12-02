@@ -2,13 +2,46 @@ var exports = module.exports = {};
 var parse_trees;
 var start_pointers;
 var conditions;
-var verbose = true;
+var verbose = 0; 
+  // 0x1 - I/O
+  // 0x2 - Parse trees
+  // 0x4 - Context comprehension
+var preset;
+var latch_result;
 
 exports.mock = function(x) {
   conditions = x;
-  verbose = false;
 
-  console.log(conditions);
+  if (verbose & 0x1 == 1) {
+    console.log('Factory Girl:');
+    console.log(conditions);
+  }
+}
+
+exports.set_verbose = function(x) {
+  verbose = x;
+  return this;
+}
+
+exports.expect = function(expectation, x) {
+  if (preset == undefined) {
+    throw new Error('Call set() first before running expect()');
+  }
+
+  this.mock(x.raw);
+  this.parse(preset);
+  if (latch_result != expectation) {
+    throw new Error('INCORRECT TEST: expected ' + expectation);
+  } else {
+    console.log('Test passed!')
+  }
+
+  return this;
+}
+
+exports.set = function(x) {
+  preset = x;
+  return this;
 }
 
 exports.parse = function(x) {
@@ -86,7 +119,10 @@ exports.parse = function(x) {
 
   }
 
-  console.log('Input: ' + x);
+  if (verbose & 0x1 == 1) {
+    console.log('Input: ' + x);
+  }
+
   try {
     for (var i = 0; i < splits.length; i++) {
       var current = splits[i];
@@ -118,7 +154,6 @@ exports.parse = function(x) {
   if (start_pointers.length > 0) {
     throw new Error('Non-empty pointers, dangling expression: ' + start_pointers);
   }
-  console.log(' -- FIN --');
 };
 
 var cond = function(x, val) {
@@ -144,7 +179,6 @@ var cond = function(x, val) {
 var insert_to_tree = function(x, depth) {
   var is_opening = x[0] == '(';
   var is_closing = x[x.length - 1] == ')';
-
   //console.log('inserting ' + x);
 
   if (is_opening) {
@@ -188,7 +222,7 @@ var insert_to_tree = function(x, depth) {
 };
 
 var debug = function(depth, type, x) {
-  if (!verbose) { return; }
+  if ((verbose & 0x2) != 0x2) { return; }
   var s = ' ';
 
   for (var i = 0; i < depth; i++) {
@@ -233,7 +267,10 @@ var close_node = function() {
   var comprehension_result = context_comprehension(syntax);
   parse_trees.splice(previous_pointer, syntax.length + 1, comprehension_result);
 
-  console.log('Syntax: ' + syntax + ' => ' + comprehension_result);
+  if ((verbose & 0x4) == 0x4) {
+    console.log('Syntax: ' + syntax + ' => ' + comprehension_result);
+  }
+  latch_result = comprehension_result;
   // console.log('PT: ' + parse_trees);
 }
 

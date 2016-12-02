@@ -4,6 +4,7 @@ var server = http.createServer(function(req, res) {
   res.end('Hello World');
 }).listen(process.env.PORT || 2999, process.env.IP || '127.0.0.1');
 var s_parser = require('./SParser.js');
+var fg = require('./FactoryGirl.js');
 
 // s_parser.parse('this is an error');
 // s_parser.parse('(xp_sum 100)');
@@ -39,19 +40,30 @@ var s_parser = require('./SParser.js');
 // s_parser.parse('(k " blankspace at back too ")');
 // s_parser.parse('(k " devil\'s advocate is at the back too ")');
 
-s_parser.mock({
-  xp_sum: 175,
+// s_parser.mock({
+//   xp_sum: 175,
+//   hp: 35,
+//   mp: 120,
+//   professions: new Array('Guard', 'Hook-Up'),
+//   strain: 'Lascarian'
+// });
+
+var prof_guard = fg.professions('Guard');
+var prof_spy = fg.professions('Spy');
+var lascarian_guard_75_villon = fg.new({
+  xp_sum: 75,
   hp: 35,
   mp: 120,
-  professions: new Array('Guard', 'Hook-Up'),
+  professions: prof_guard,
   strain: 'Lascarian'
-});
+})
 
-s_parser.parse(`
-  (and ((xp_sum 100) 
-        (stat_sum hp_or_mp 50) 
-        (p Priest) 
-        (p (Guard Officer))))`)
+
+// s_parser.parse(`
+//   (and ((xp_sum 100) 
+//         (stat_sum hp_or_mp 50) 
+//         (p Priest) 
+//         (p (Guard Officer))))`)
 // s_parser.parse(`
 //   (and ((xp_sum 100) 
 //         (stat_sum hp_or_mp 50) 
@@ -60,11 +72,11 @@ s_parser.parse(`
 //   (and ((xp_sum 100) 
 //         (stat_sum hp_or_mp 50) 
 //         (p (Thug Pugilist))))`)
-s_parser.parse(` 
-  (and ((not (s "The Red Star")) 
-        (xp_sum 100)
-        (stat_sum hp_or_mp 50) 
-        (p ("Caravan Driver" "Hook-Up" Merchant Publican))))`)
+// s_parser.parse(` 
+//   (and ((not (s "The Red Star")) 
+//         (xp_sum 100)
+//         (stat_sum hp_or_mp 50) 
+//         (p ("Caravan Driver" "Hook-Up" Merchant Publican))))`)
 // s_parser.parse(` 
 //   (and ((s Retrograde) 
 //         (xp_sum 100) 
@@ -96,12 +108,12 @@ s_parser.parse(`
 //   (and ((xp_sum 100) 
 //         (stat_sum hp_or_mp 50)
 //         (p (Soldier Guard Officer Hunter))))`)
-s_parser.parse(` 
-  (and ((xp_sum 100) 
-        (stat_sum hp 50) 
-        (s Merican)
-        (p Priest) 
-        (p (Guard Officer "Gun Slinger" Hunter Primitive Pugilist Soldier Thug))))`)
+// s_parser.parse(` 
+//   (and ((xp_sum 100) 
+//         (stat_sum hp 50) 
+//         (s Merican)
+//         (p Priest) 
+//         (p (Guard Officer "Gun Slinger" Hunter Primitive Pugilist Soldier Thug))))`)
 // s_parser.parse(` 
 //   (and ((xp_sum 200) 
 //         (stat_sum hp_or_mp 50) 
@@ -168,5 +180,17 @@ s_parser.parse(`
 // s_parser.parse(`
 //   (and ((xp_sum 100) 
 //         (p (Thief Assassin Spy))))`)
+
+var villon = s_parser.set(`
+  (and ((xp_sum 100) 
+        (p (Thief Assassin Spy))))`)
+
+villon.set_verbose(5)
+  .expect(false, lascarian_guard_75_villon)
+  .expect(true,  lascarian_guard_75_villon
+                   .modify('xp_sum', 125)
+                   .modify('professions', prof_spy))
+  .expect(false, lascarian_guard_75_villon
+                   .modify('xp_sum', 101));
 
 process.exit(0);
