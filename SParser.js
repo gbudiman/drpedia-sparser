@@ -272,6 +272,7 @@ SParser.prototype.context_comprehension = function(l) {
     case 'p':            return this.func_profs(rest);
     case 'k':            return this.func_skills(rest);
     case 'psionic_type': return this.func_psionic_type(rest);
+    case 'lore_type':    return this.func_lore_count(rest);
     case 'xp_sum':       return this.func_xp_sum(rest);
     case 'stat_sum':     return this.func_stat_sum(rest);
     case 'and':          return this.func_and(rest);
@@ -353,6 +354,11 @@ function SParser(x) {
     return this.cond(s_class, -1, s_func);
   }
 
+  var func_lore_count = function(l) {
+    this.check_arglength_exactly(l, 1);
+    return this.cond('lore_count', l[0], function(x, y) { return x >= y; });
+  }
+
   var func_xp_sum = function(l) {
     this.check_arglength_exactly(l, 1);
     return this.conditions.xp_sum >= l[0];
@@ -373,6 +379,7 @@ function SParser(x) {
   this.func_profs = func_profs;
   this.func_skills = func_skills;
   this.func_psionic_type = func_psionic_type;
+  this.func_lore_count = func_lore_count;
   this.func_xp_sum = func_xp_sum;
   this.func_stat_sum = func_stat_sum;
   this.func_and = func_and;

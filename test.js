@@ -79,6 +79,14 @@ var psionist_200_thoughtbender = new fg.FactoryGirl({
   mp: 50,
   professions: ['Psionist']
 })
+var plain_200_veteran = new fg.FactoryGirl({
+  xp_sum: 200
+})
+var printer_200_sage = new fg.FactoryGirl({
+  xp_sum: 200,
+  mp: 50,
+  professions: ['Jones']
+})
 
 
 var apo_templar = new s_parser(`
@@ -242,5 +250,15 @@ thought_bender
   .expect(false, psionist_200_thoughtbender)
   .expect(true,  psionist_200_thoughtbender
                    .modify('psionic_advanced', 4))
+  .expect(false, psionist_200_thoughtbender
+                   .modify('psionic_intermediate', 4))
+  .expect(false,  psionist_200_thoughtbender
+                   .modify('psionic_advanced', 3)
+                   .modify('hp', 50)
+                   .modify('mp', 30))
 
+sage
+  .expect(false, printer_200_sage)
+  .expect(true,  printer_200_sage
+                   .modify('lore_count', 4))
 process.exit(0);
