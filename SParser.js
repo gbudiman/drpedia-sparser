@@ -1,3 +1,5 @@
+const util = require('util');
+
 SParser.prototype.mock = function(x) {
   this.conditions = x;
 
@@ -28,9 +30,28 @@ SParser.prototype.expect = function(expectation, x) {
   return this;
 }
 
+SParser.prototype.human_readable_result = function() {
+  var unroll = function(composite) {
+    if (composite.data != undefined) {
+      composite.data.forEach(function(x) {
+        unroll(x);
+        console.log(x);
+      })
+    }
+  }
+
+  console.log(util.inspect(this.logical_trees, { showHidden: false, depth: null }));
+  // this.logical_trees.forEach(function(x) {
+  //   //console.log(x);
+
+  //   unroll(x);
+  // })
+}
+
 SParser.prototype.parse = function(x) {
   this.parse_trees = new Array();
   this.start_pointers = new Array();
+  this.logical_trees = new Array();
 
   var depth = 0;
   var splits = x.split(/\s+/);
@@ -127,6 +148,8 @@ SParser.prototype.parse = function(x) {
   if (this.start_pointers.length > 0) {
     throw new Error('Non-empty pointers, dangling expression: ' + start_pointers);
   }
+
+  this.human_readable_result();
 };
 
 SParser.prototype.cond = function(x, val, custom_function) {
@@ -253,6 +276,38 @@ SParser.prototype.close_node = function() {
   if ((this.verbose & 0x4) == 0x4) {
     console.log('Syntax: ' + syntax + ' => ' + comprehension_result);
   }
+
+  if ((this.verbose & 0x8) == 0x8) {
+    if (!comprehension_result) {
+      console.log('(' + syntax.join(',') + ') => ' + comprehension_result);
+    }
+  }
+
+  switch(syntax[0]) {
+    case 'xp_sum':
+    case 'stat_sum':
+    case 'p':
+    case 's':
+    case 'k':
+      this.logical_trees.push({condition: syntax, result: comprehension_result});
+      break;
+    case 'and':
+    case 'or':
+    case 'not':
+      var pop_count = syntax.length - 1;
+      var logicalized = new Array();
+      for (var i = 0; i < pop_count; i++) {
+        logicalized.push(this.logical_trees.pop());
+      }
+
+      this.logical_trees.push({
+        operator: syntax[0],
+        data: logicalized,
+        result: comprehension_result
+      })
+      break;
+  }
+
   this.latch_result = comprehension_result;
   // console.log('PT: ' + parse_trees);
 }
@@ -294,6 +349,8 @@ function SParser(x) {
     // 0x4 - Context comprehension
   this.latch_result;
   this.preset = x;
+  
+  this.logical_trees;
 
   var func_not = function(l) {
     return !l[0];
