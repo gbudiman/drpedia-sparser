@@ -213,54 +213,54 @@ var villon = new s_parser(`
         (p (Thief Assassin Spy))))`)
 
 
-// shepherd
-//   .expect(false, genjian_cook_fisher_150_shepherd)
-//   .expect(true,  genjian_cook_fisher_150_shepherd
-//                    .modify('xp_sum', 200)
-//                    .modify('hp', 100))
+shepherd
+  .expect(false, genjian_cook_fisher_150_shepherd)
+  .expect(true,  genjian_cook_fisher_150_shepherd
+                   .modify('xp_sum', 200)
+                   .modify('hp', 100))
 
-// villon
-//   .expect(false, lascarian_guard_75_villon)
-//   .expect(true,  lascarian_guard_75_villon
-//                    .modify('xp_sum', 125)
-//                    .modify('professions', prof_spy))
-//   .expect(false, lascarian_guard_75_villon
-//                    .modify('xp_sum', 101));
+villon
+  .expect(false, lascarian_guard_75_villon)
+  .expect(true,  lascarian_guard_75_villon
+                   .modify('xp_sum', 125)
+                   .modify('professions', prof_spy))
+  .expect(false, lascarian_guard_75_villon
+                   .modify('xp_sum', 101));
 
-// overlord
-//   .expect(false, plain_200_overlord)
-//   .expect(true,  plain_200_overlord
-//                    .add_profession('Mad Scientist')
-//                    .add_profession('Politician'))
-//   .expect(false, plain_200_overlord
-//                    .add_profession('Charlatan'))
+overlord
+  .expect(false, plain_200_overlord)
+  .expect(true,  plain_200_overlord
+                   .add_profession('Mad Scientist')
+                   .add_profession('Politician'))
+  .expect(false, plain_200_overlord
+                   .add_profession('Charlatan'))
 
 gear_head
   .expect(false, plain_200_gearhead)
-//   .expect(true,  plain_200_gearhead
-//                    .modify('skills', ['Brewing'])
-//                    .add_profession('Merchant'))
-//   .expect(true,  plain_200_gearhead
-//                    .modify('skills', ['Brewing'])
-//                    .modify('strain', 'Rover'))
-//   .expect(false, plain_200_gearhead
-//                    .modify('skills', ['Forging the Future']))
+  .expect(true,  plain_200_gearhead
+                   .modify('skills', ['Brewing'])
+                   .add_profession('Merchant'))
+  .expect(true,  plain_200_gearhead
+                   .modify('skills', ['Brewing'])
+                   .modify('strain', 'Rover'))
+  .expect(false, plain_200_gearhead
+                   .modify('skills', ['Forging the Future']))
 
-// thought_bender
-//   .expect(false, psionist_200_thoughtbender)
-//   .expect(true,  psionist_200_thoughtbender
-//                    .modify('psionic_advanced', 4))
-//   .expect(false, psionist_200_thoughtbender
-//                    .modify('psionic_intermediate', 4))
-//   .expect(false,  psionist_200_thoughtbender
-//                    .modify('psionic_advanced', 3)
-//                    .modify('hp', 50)
-//                    .modify('mp', 30))
+thought_bender
+  .expect(false, psionist_200_thoughtbender)
+  .expect(true,  psionist_200_thoughtbender
+                   .modify('psionic_advanced', 4))
+  .expect(false, psionist_200_thoughtbender
+                   .modify('psionic_intermediate', 4))
+  .expect(false,  psionist_200_thoughtbender
+                   .modify('psionic_advanced', 3)
+                   .modify('hp', 50)
+                   .modify('mp', 30))
 
-// sage
-//   .expect(false, printer_200_sage)
-//   .expect(true,  printer_200_sage
-//                    .modify('lore_count', 4))
+sage
+  .expect(false, printer_200_sage)
+  .expect(true,  printer_200_sage
+                   .modify('lore_count', 4))
 
 entrepreneur
   .expect(false, plain_200_gearhead)

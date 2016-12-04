@@ -1,4 +1,5 @@
 const util = require('util');
+const colors = require('colors');
 
 SParser.prototype.mock = function(x) {
   this.conditions = x;
@@ -31,21 +32,114 @@ SParser.prototype.expect = function(expectation, x) {
 }
 
 SParser.prototype.human_readable_result = function() {
-  var unroll = function(composite) {
-    if (composite.data != undefined) {
-      composite.data.forEach(function(x) {
-        unroll(x);
-        console.log(x);
+  var highlight_in_list = function(list, _highlight) {
+    if (_highlight == undefined) {
+      return list.join(', ');
+    } else {
+      var highlight = _highlight;
+      if (!Array.isArray(_highlight)) {
+        highlight = new Array(_highlight);
+      }
+
+      var s = '';
+      list.forEach(function(x) {
+        if (highlight.indexOf(x) != -1) {
+          s += x.inverse + ', ';
+        } else {
+          s += x + ', ';
+        }
       })
+
+      return s.slice(0, -2);
     }
   }
 
-  console.log(util.inspect(this.logical_trees, { showHidden: false, depth: null }));
+  var unroll = function(composite, depth, context, _invert) {
+    var invert = _invert == undefined ? false : _invert;
+
+    if (composite.operator != undefined) {
+      //console.log('Depth ' + depth + ' << ' + composite.operator.toUpperCase() + ' >>');
+
+      var h = '';
+      var s = '';
+      switch(composite.operator) {
+        case 'and': h = 'All of the following:'; break;
+        case 'or':  h = 'Any one of the following:'; break;
+        case 'not': h = 'None of the following:'; break;
+      }
+
+      s = Array((depth) * 4).join(' ') + (composite.result ? 'v ' : 'x ') + h;
+      if (composite.result) {
+        console.log(s.green);
+      } else {
+        console.log(s.red);
+      }
+
+      composite.data.forEach(function(x) {
+        unroll(x, depth + 1, context, composite.operator == 'not' ? true : false);
+      })
+      
+    } else {
+      //console.log('Depth ' + depth + ': ');
+      //console.log(composite);
+
+      var s = '';
+      var p = composite.result ? 'v ' : 'x ';
+      var h = '';
+      switch(composite.condition[0]) {
+        case 'p': 
+          s += 'Profession: '; 
+          s += highlight_in_list(composite.condition.slice(1), context.conditions.professions);
+          break;
+        case 'k': 
+          s += 'Skill: '; 
+          s += highlight_in_list(composite.condition.slice(1), context.conditions.skills);
+          break;
+        case 's': 
+          //console.log(composite.condition);
+          //console.log(new Array(context.conditions));
+          s += 'Strain: '; 
+          s += highlight_in_list(composite.condition.slice(1), context.conditions.strain);
+          break;
+        case 'xp_sum': 
+          s += 'XP >= '; 
+          s += composite.condition[1];
+          break;
+        case 'stat_sum':
+          switch(composite.condition[1]) {
+            case 'hp_or_mp': s += 'HP/MP >= '; break;
+            case 'hp': s += 'HP >= '; break;
+            case 'mp': s += 'MP >= '; break;
+          }
+
+          s += composite.condition[2];
+      }
+
+      s = Array(depth * 4).join(' ') + p + s;// + composite.condition.slice(1).join(', ');
+
+      if (invert) {
+        composite.result = !composite.result;
+      }
+
+      if (composite.result) {
+        console.log(s.green);  
+      } else {
+        console.log(s.red);
+      }
+      
+    }
+  }
+
+  // console.log(util.inspect(this.logical_trees, { showHidden: false, depth: null }));
   // this.logical_trees.forEach(function(x) {
   //   //console.log(x);
 
   //   unroll(x);
   // })
+  var that = this;
+  this.logical_trees.forEach(function(x) {
+    unroll(x, 0, that);
+  });
 }
 
 SParser.prototype.parse = function(x) {
