@@ -113,6 +113,19 @@ SParser.prototype.human_readable_result = function() {
           }
 
           s += composite.condition[2];
+          break;
+        case 'lore_type':
+          s += 'Lore skills count >= ';
+          s += composite.condition[1];
+          break;
+        case 'psionic_type':
+          switch(composite.condition[1]) {
+            case 'basic': s += 'Basic Psionic skills >= '; break;
+            case 'intermediate': s += 'Intermediate Psionic skills >= '; break;
+            case 'advanced': s += 'Advanced Psionic skills >= '; break;
+          }
+          s += composite.condition[2];
+          break;
       }
 
       s = Array(depth * 4).join(' ') + p + s;// + composite.condition.slice(1).join(', ');
@@ -130,7 +143,7 @@ SParser.prototype.human_readable_result = function() {
     }
   }
 
-  // console.log(util.inspect(this.logical_trees, { showHidden: false, depth: null }));
+  //console.log(util.inspect(this.logical_trees, { showHidden: false, depth: null }));
   // this.logical_trees.forEach(function(x) {
   //   //console.log(x);
 
@@ -383,6 +396,8 @@ SParser.prototype.close_node = function() {
     case 'p':
     case 's':
     case 'k':
+    case 'lore_type':
+    case 'psionic_type':
       this.logical_trees.push({condition: syntax, result: comprehension_result});
       break;
     case 'and':
@@ -400,6 +415,9 @@ SParser.prototype.close_node = function() {
         result: comprehension_result
       })
       break;
+
+    default:
+      //console.log(syntax);
   }
 
   this.latch_result = comprehension_result;

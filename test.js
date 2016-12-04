@@ -178,7 +178,7 @@ var sage = new s_parser(`
   (and ((xp_sum 100) 
         (stat_sum mp 50) 
         (p (Jones Printer Teacher)) 
-        (k (lore_type 4))))`)
+        (lore_type 4)))`);
 var saint = new s_parser(` 
   (and ((xp_sum 100)
         (or ((p (Cook Doctor Priest Teacher))  
@@ -203,7 +203,7 @@ var thought_bender = new s_parser(`
   (and ((xp_sum 100)  
         (stat_sum mp 50) 
         (p Psionist) 
-        (k (psionic_type advanced 2))))`)
+        (psionic_type advanced 2)))`)
 var veteran = new s_parser(` 
   (and ((xp_sum 200)
         (k "Lore - Local Area")))`)
