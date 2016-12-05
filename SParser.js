@@ -78,7 +78,7 @@ SParser.prototype.human_readable_result = function() {
         case 'not': h = 'None of the following:'; break;
       }
 
-      s = Array((depth) * 4).join(' ') + (composite.result ? 'v ' : 'x ') + h;
+      s = Array((depth) * 4).join(' ') + (composite.result ? '✓ ' : '✗ ') + h;
       if (composite.result) {
         console.log(s.green);
       } else {
@@ -94,7 +94,7 @@ SParser.prototype.human_readable_result = function() {
       //console.log(composite);
 
       var s = '';
-      var p = composite.result ? 'v ' : 'x ';
+      var p = composite.result ? '✓ ' : '✗ ';
       var h = '';
       switch(composite.condition[0]) {
         case 'p': 
