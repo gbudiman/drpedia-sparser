@@ -18,20 +18,27 @@ SParser.prototype.set_verbose = function(x) {
 }
 
 SParser.prototype.expect = function(expectation, x) {
-  if (this.preset == undefined) {
-    throw new Error('Call set() first before running expect()');
-  }
-
-  this.mock(x.raw);
+  this.mock(x.data);
   this.parse(this.preset);
-  if (this.latch_result != expectation) {
-    //throw new Error('INCORRECT TEST: expected ' + expectation);
-    console.log('TEST FAILED!'.red.inverse);
-  } else {
-    console.log('TEST PASSED!'.green.inverse);
+
+  if (expectation != null) {
+    if (this.latch_result != expectation) {
+      console.log('TEST FAILED!'.red.inverse);
+    } else {
+      console.log('TEST PASSED!'.green.inverse);
+    }
   }
 
   return this;
+}
+
+SParser.prototype.test = function(x) {
+  this.expect(null, x);
+  return {
+    result: this.latch_result,
+    logical_trees: this.logical_trees,
+    conditions: this.conditions
+  }
 }
 
 SParser.prototype.human_readable_result = function() {
@@ -147,11 +154,7 @@ SParser.prototype.human_readable_result = function() {
   }
 
   //console.log(util.inspect(this.logical_trees, { showHidden: false, depth: null }));
-  // this.logical_trees.forEach(function(x) {
-  //   //console.log(x);
 
-  //   unroll(x);
-  // })
   var that = this;
   this.logical_trees.forEach(function(x) {
     unroll(x, 0, that);
@@ -459,9 +462,17 @@ function log_human_readable_result(value) {
   human_readable_result = value;
 }
 
+function display_human_readable_result(x) {
+  var sp = new SParser(null);
+  sp.logical_trees = x.logical_trees;
+  sp.conditions = x.conditions;
+  sp.human_readable_result();
+}
+
 module.exports = {
   SParser: SParser,
-  log_human_readable_result: log_human_readable_result
+  log_human_readable_result: log_human_readable_result,
+  display_human_readable_result: display_human_readable_result
 }
 
 function SParser(x) {

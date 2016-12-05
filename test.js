@@ -220,4 +220,11 @@ sage
 
 entrepreneur
   .expect(false, plain_200_gearhead)
+
+var x = thought_bender
+          .test(psionist_200_thoughtbender
+                  .modify('psionic_advanced', 4))
+
+sp.display_human_readable_result(x);
+
 process.exit(0);

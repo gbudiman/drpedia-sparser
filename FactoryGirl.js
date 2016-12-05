@@ -14,25 +14,25 @@ module.exports = {
 FactoryGirl.prototype.modify = function(property, val) {
   // perform deep copy
   // modify must NOT cause side-effect
-  var raw_clone = JSON.parse(JSON.stringify(this.raw));
+  var raw_clone = JSON.parse(JSON.stringify(this.data));
   var clone = new FactoryGirl(raw_clone);
 
   if (property == 'add_profession') {
-    if (clone.raw.professions == undefined) {
-      clone.raw.professions = new Array();
+    if (clone.data.professions == undefined) {
+      clone.data.professions = new Array();
     }
 
-    clone.raw.professions.push(val);
+    clone.data.professions.push(val);
   } else {
-    clone.raw[property] = val;
+    clone.data[property] = val;
   }
 
   return clone;
 }
 
 FactoryGirl.prototype.add_profession = function(_val) {
-  if (this.raw.profession != undefined && 
-      this.raw.professions.length > 3) {
+  if (this.data.profession != undefined && 
+      this.data.professions.length > 3) {
     throw new Error('Can only have a maximum of 3 professions');
   }
 
@@ -40,6 +40,6 @@ FactoryGirl.prototype.add_profession = function(_val) {
 }
 
 function FactoryGirl(x) {
-  this.raw = x;
+  this.data = x;
   return this;
 }
