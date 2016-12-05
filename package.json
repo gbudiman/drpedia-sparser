@@ -1,0 +1,29 @@
+{
+  "name": "drpedia-sparser",
+  "version": "0.0.1",
+  "description": "s-expression parser for Dystopia Rising advanced profession",
+  "main": "SParser.js",
+  "dependencies": {
+    "colors": "^1.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gbudiman/drpedia-sparser.git"
+  },
+  "keywords": [
+    "s-expression",
+    "compiler",
+    "parser",
+    "dystopia_rising"
+  ],
+  "author": "Gloria Budiman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gbudiman/drpedia-sparser/issues"
+  },
+  "homepage": "https://github.com/gbudiman/drpedia-sparser#readme"
+}

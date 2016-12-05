@@ -25,9 +25,10 @@ SParser.prototype.expect = function(expectation, x) {
   this.mock(x.raw);
   this.parse(this.preset);
   if (this.latch_result != expectation) {
-    throw new Error('INCORRECT TEST: expected ' + expectation);
+    //throw new Error('INCORRECT TEST: expected ' + expectation);
+    console.log('TEST FAILED!'.red.inverse);
   } else {
-    console.log('Test passed!')
+    console.log('TEST PASSED!'.green.inverse);
   }
 
   return this;
