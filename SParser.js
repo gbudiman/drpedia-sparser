@@ -1,6 +1,8 @@
 const util = require('util');
 const colors = require('colors');
 
+var human_readable_result = false;
+
 SParser.prototype.mock = function(x) {
   this.conditions = x;
 
@@ -256,7 +258,9 @@ SParser.prototype.parse = function(x) {
     throw new Error('Non-empty pointers, dangling expression: ' + start_pointers);
   }
 
-  this.human_readable_result();
+  if (human_readable_result) {
+    this.human_readable_result();
+  }
 };
 
 SParser.prototype.cond = function(x, val, custom_function) {
@@ -450,7 +454,15 @@ SParser.prototype.context_comprehension = function(l) {
   }
 }
 
-module.exports = SParser;
+function log_human_readable_result(value) {
+  human_readable_result = value;
+}
+
+module.exports = {
+  SParser: SParser,
+  log_human_readable_result: log_human_readable_result
+}
+
 function SParser(x) {
   this.parse_trees;
   this.start_pointers;

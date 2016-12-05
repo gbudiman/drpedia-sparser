@@ -3,8 +3,10 @@
 //   res.writeHead(200);
 //   res.end('Hello World');
 // }).listen(process.env.PORT || 2999, process.env.IP || '127.0.0.1');
-var s_parser = require('./SParser.js');
+var sp = require('./SParser.js');
 var fg = require('./FactoryGirl.js');
+
+sp.log_human_readable_result(true);
 
 // s_parser.parse('this is an error');
 // s_parser.parse('(xp_sum 100)');
@@ -89,29 +91,29 @@ var printer_200_sage = new fg.FactoryGirl({
 })
 
 
-var apo_templar = new s_parser(`
+var apo_templar = new sp.SParser(`
   (and ((xp_sum 100) 
         (stat_sum hp_or_mp 50) 
         (p Priest) 
         (p (Guard Officer))))`);
-var avontuur = new s_parser(`
+var avontuur = new sp.SParser(`
   (and ((xp_sum 100) 
         (stat_sum hp_or_mp 50) 
         (p (Gambler Scavenger Teacher Jones))))`)
-var bone_breaker = new s_parser(` 
+var bone_breaker = new sp.SParser(` 
   (and ((xp_sum 100) 
         (stat_sum hp_or_mp 50) 
         (p (Thug Pugilist))))`)
-var entrepreneur = new s_parser(` 
+var entrepreneur = new sp.SParser(` 
   (and ((not (s "The Red Star")) 
         (xp_sum 100)
         (stat_sum hp_or_mp 50) 
         (p ("Caravan Driver" "Hook-Up" Merchant Publican))))`)
-var free_radical = new s_parser(` 
+var free_radical = new sp.SParser(` 
   (and ((s Retrograde) 
         (xp_sum 100) 
         (stat_sum hp_or_mp 50)))`)
-var g_man = new s_parser(` 
+var g_man = new sp.SParser(` 
   (and ((or ((s "Pure Blood") 
              (k "Lore - Strain - Pure Blood"))) 
         (xp_sum 100) 
@@ -119,98 +121,99 @@ var g_man = new s_parser(`
         (k Literacy) 
         (k "Lore - Pre-Fall History Modern") 
         (k (Torture Interrogate))))`)
-var gear_head = new s_parser(` 
+var gear_head = new sp.SParser(` 
   (and ((xp_sum 100) 
         (stat_sum hp_or_mp 50) 
         ((or (p (Caravan Driver "Hook-Up" Merchant Engineer "Mad Scientist")) 
              (s ("Diesel Jock" Rover)))) 
         (k ("Building Tomorrow" Brewing "Forging the Future"))))`)
-var grave_robber = new s_parser(` 
+var grave_robber = new sp.SParser(` 
   (and ((xp_sum 100)
         (stat_sum hp_or_mp 50)
         (p (Doctor Sawbones)) 
         (p (Scavenger Thief Assassin Jones))))`)
-var marksman = new s_parser(` 
+var marksman = new sp.SParser(` 
   (and ((xp_sum 100) 
         (stat_sum hp_or_mp 50)
         (p (Sniper "Gun Slinger"))))`)
-var mercenary = new s_parser(` 
+var mercenary = new sp.SParser(` 
   (and ((xp_sum 100) 
         (stat_sum hp_or_mp 50)
         (p (Soldier Guard Officer Hunter))))`)
-var merican_badass = new s_parser(` 
+var merican_badass = new sp.SParser(` 
   (and ((xp_sum 100) 
         (stat_sum hp 50) 
         (s Merican)
         (p Priest) 
         (p (Guard Officer "Gun Slinger" Hunter Primitive Pugilist Soldier Thug))))`)
-var mind_killer = new s_parser(` 
+var mind_killer = new sp.SParser(` 
   (and ((xp_sum 200) 
         (stat_sum hp_or_mp 50) 
         (k "Mind Resistance")))`)
-var monk = new s_parser(` 
+var monk = new sp.SParser(` 
   (and ((xp_sum 100)
         (stat_sum hp_or_mp 50) 
         (p ("Martial Artist" Priest))))`)
-var mountebank = new s_parser(` 
+var mountebank = new sp.SParser(` 
   (and ((xp_sum 100) 
         (stat_sum mp 100) 
         (p (Charlatan Gambler Merchant Politician))))`)
-var nephilim = new s_parser(` 
+var nephilim = new sp.SParser(` 
   (and ((xp_sum 200) 
         (stat_sum mp 50) 
         (s ("Nation of Accensor" Remnant))))`)
-var oni = new s_parser(` 
+var oni = new sp.SParser(` 
   (and ((xp_sum 100)  
         (stat_sum hp_or_mp 50)
         (s "Red Star") 
         (p Priest) 
         (p (Guard Officer "Gun Slinger" Primitive Soldier))))`)
-var overlord = new s_parser(`
+var overlord = new sp.SParser(`
   (and ((xp_sum 100)
         (stat_sum hp_or_mp 50) 
         (p (Assassin Doctor Gambler "Mad Scientist" "Ring Leader" Engineer)) 
         (p (Charlatan Entertainer Politician Priest Teacher))))`)
-var reaper = new s_parser(` 
+var reaper = new sp.SParser(` 
   (and ((xp_sum 100)
         (p ("Gun Slinger" Hunter Primitive Soldier))))`)
-var sage = new s_parser(`
+var sage = new sp.SParser(`
   (and ((xp_sum 100) 
         (stat_sum mp 50) 
         (p (Jones Printer Teacher)) 
         (lore_type 4)))`);
-var saint = new s_parser(` 
+var saint = new sp.SParser(` 
   (and ((xp_sum 100)
         (or ((p (Cook Doctor Priest Teacher))  
              (s "Nation of Accensor"))) 
         ((not (s "The Red Star")))))`)
-var shadow = new s_parser(` 
+var shadow = new sp.SParser(` 
   (and ((xp_sum 200) 
         (stat_sum hp_or_mp 50)
         (p (Assassin Thief Spy))))`)
-var shepherd = new s_parser(` 
+var shepherd = new sp.SParser(` 
   (and ((xp_sum 200) 
         (stat_sum hp_or_mp 100) 
         (p (Cook Brewer Teacher Entertainer Farmer Fishmonger))))`)
-var survivor = new s_parser(` 
+var survivor = new sp.SParser(` 
   (and ((xp_sum 200) 
         (stat_sum hp_and_mp 100)))`)
-var techno_savant = new s_parser(`
+var techno_savant = new sp.SParser(`
   (and ((xp_sum 100)
         (stat_sum hp_or_mp 50) 
         (p ("Mad Scientist" Tinker Engineer))))`)
-var thought_bender = new s_parser(` 
+var thought_bender = new sp.SParser(` 
   (and ((xp_sum 100)  
         (stat_sum mp 50) 
         (p Psionist) 
         (psionic_type advanced 2)))`)
-var veteran = new s_parser(` 
+var veteran = new sp.SParser(` 
   (and ((xp_sum 200)
         (k "Lore - Local Area")))`)
 
-var villon = new s_parser(`
+var villon = new sp.SParser(`
   (and ((xp_sum 100) 
         (p (Thief Assassin Spy))))`)
+
 
 
 shepherd
