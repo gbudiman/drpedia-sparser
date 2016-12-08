@@ -1,10 +1,11 @@
 {
   "name": "drpedia-sparser",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "s-expression parser for Dystopia Rising advanced profession",
   "main": "SParser.js",
   "dependencies": {
-    "colors": "^1.1.2"
+    "colors": "^1.1.2",
+    "agentgirl": "0.0.2"
   },
   "devDependencies": {},
   "scripts": {
