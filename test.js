@@ -38,6 +38,11 @@ var printer_200_sage = new ag.AgentGirl({
   mp: 50,
   professions: ['Jones']
 })
+var mericans_200_gman = new ag.AgentGirl({
+  xp_sum: 200,
+  hp: 80,
+  skills: ['Literacy']
+})
 
 
 var defs = new sp.load_defaults();
@@ -94,6 +99,9 @@ defs.sage
 
 defs.entrepreneur
   .expect(false, plain_200_gearhead)
+
+defs.g_man
+  .expect(false, mericans_200_gman)
 
 var x = defs.thought_bender
           .test(psionist_200_thoughtbender

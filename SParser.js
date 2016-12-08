@@ -654,7 +654,7 @@ function SParser(x) {
   var func_skills = function(l) {
     var that = this;
     var local_satisfaction = l.some(function(x) {
-      return that.cond('skill', x) || x;
+      return that.cond('skill', x);
     })
 
     return local_satisfaction;
