@@ -566,7 +566,7 @@ function load_defaults() {
           (p (Cook Brewer Teacher Entertainer Farmer Fishmonger))))`)
   s.survivor = new SParser(` 
     (and ((xp_sum 200) 
-          (stat_sum hp_and_mp 100)))`)
+          (stat_sum hp_or_mp 100)))`)
   s.techno_savant = new SParser(`
     (and ((xp_sum 100)
           (stat_sum hp_or_mp 50) 
@@ -692,8 +692,8 @@ function SParser(x) {
     switch(l[0]) {
       case 'hp':       return this.conditions.hp >= l[1];
       case 'mp':       return this.conditions.mp >= l[1];
-      case 'hp_or_mp': return this.conditions.hp >= l[1] || 
-                              this.conditions.mp >= l[1];
+      case 'hp_or_mp': return (this.conditions.hp || 0) 
+                            + (this.conditions.mp || 0) >= l[1];
     }
   }
 

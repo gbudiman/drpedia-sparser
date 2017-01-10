@@ -47,7 +47,6 @@ var mericans_200_gman = new ag.AgentGirl({
 
 var defs = new sp.load_defaults();
 
-
 defs.shepherd
   .expect(false, genjian_cook_fisher_150_shepherd)
   .expect(true,  genjian_cook_fisher_150_shepherd
@@ -102,6 +101,12 @@ defs.entrepreneur
 
 defs.g_man
   .expect(false, mericans_200_gman)
+
+defs.survivor
+  .expect(false, mericans_200_gman)
+  .expect(true,  mericans_200_gman
+                   .modify('mp', 20)
+                   .modify('hp', 80))
 
 var x = defs.thought_bender
           .test(psionist_200_thoughtbender
